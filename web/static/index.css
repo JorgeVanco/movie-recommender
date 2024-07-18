@@ -1,0 +1,57 @@
+.flex{
+    display: grid;
+    gap: 10px;
+    /* grid-template-columns: 1fr; */
+    /* display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center; */
+
+
+    /* justify-content: center;
+    align-items: center;
+    height: 100vh; */
+}
+
+#movieList {
+    grid-template-columns: repeat(8, 1fr);
+}
+
+img{
+    width: 100%;
+    cursor:pointer;
+}
+
+.card{
+    background-color: black;
+    padding:0;
+    height: 380px;
+    
+}
+
+.card:hover{
+    /* height: 390px;
+    width: 103%; */
+    box-shadow: 0 0 10px 5px #8c8c8c;
+}
+
+.cardInfo{
+    padding:5px;
+}
+.cardInfo p{
+    margin:0;
+
+}
+
+body{
+    margin:0;
+}
+
+#search{
+    width: 50%;
+    padding: 10px;
+    margin: 10px 0;
+    position: relative;
+    left:50%;
+    transform: translateX(-50%);
+}
