@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 with open("movies.json") as f:
     raw_movies = json.load(f)
-
+print("Loaded movies:", len(raw_movies))
 embeddings = []
 movies = []
 for idx, movie in enumerate(raw_movies):

@@ -1,6 +1,4 @@
-from pathlib import Path
-from bs4 import BeautifulSoup
-from matplotlib.pylab import f
+import io
 import scrapy
 from scrapy.crawler import CrawlerProcess
 import pandas as pd
@@ -61,27 +59,33 @@ class MoviesSpider(scrapy.Spider):
     def parse_country(self, response):
         from scrapy.shell import inspect_response
 
-        t = pd.read_html(
-            response.css("table.wikitable.sortable").get(), extract_links="all"
-        )
-        for table in t:
-            title_column = None
-            for idx, col in enumerate(table.columns):
-                if "title" in col[0].lower():
-                    title_column = idx
+        tables = response.css(
+            "table.wikitable.sortable"
+        ).getall()  # TODO Maybe just wikitable?
+        for table_found in tables:
+            t = pd.read_html(io.StringIO(table_found), extract_links="all")
+            for table in t:
+                # print(table)
+                title_column = None
+                for idx, col in enumerate(table.columns):
+                    if "title" in col[0].lower():
+                        title_column = idx
 
-            if title_column is not None:
-
-                for title, link in table.iloc[:, title_column]:  # .tolist())
-                    if link is not None:
-                        yield response.follow(
-                            link,
-                            self.parse_movie,
-                            meta={"title": title, "year": response.meta["year"]},
-                        )
+                if title_column is not None:
+                    # print(table.iloc[:, title_column].tolist())
+                    for row in table.iloc[:, title_column].tolist():  # .tolist())
+                        if not isinstance(row, tuple):
+                            continue
+                        title, link = row
+                        if link is not None:
+                            yield response.follow(
+                                link,
+                                self.parse_movie,
+                                meta={"title": title, "year": response.meta["year"]},
+                            )
 
             # inspect_response(response, self)
-
+            # inspect_response(response, self)
         # for table in response.css("table.wikitable.sortable"):
 
         #     rows = table.xpath(".//tr")
@@ -99,7 +103,7 @@ class MoviesSpider(scrapy.Spider):
         #         print(title)
 
     def parse_movie(self, response):
-
+        print(response.request.url)
         h2 = response.xpath("//h2[span[contains(text(), 'Plot')]]")
         if h2:
             h2 = h2[0]
@@ -148,7 +152,7 @@ if __name__ == "__main__":
     process = CrawlerProcess(
         settings={
             "FEED_FORMAT": "json",
-            "FEED_URI": "movies.json",
+            "FEED_URI": "movies2006.json",
             "FEED_EXPORT_ENCODING": "utf-8",  # Set the encoding to UTF-8
             "LOG_LEVEL": "WARNING",
         }
